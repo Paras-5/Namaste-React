@@ -1,30 +1,75 @@
-import { useState } from 'react';
-import resObj from '../utils/mockData'
-import RestaurantCard from './RestaurantCard';
-
+import { useEffect, useState } from "react";
+import RestaurantCard from "./RestaurantCard";
+import Shimmer from "./Shimmer";
 
 const Body = () => {
+  const [resList, setResList] = useState([]);
+  const [filteredList , setFilteredList]  =useState([]);
+  const [searchText, setsearchText] = useState("");
 
-  let [resList , setResList] = useState(resObj);
+  useEffect(() => {
+    getData();
+  }, []);
 
+  const getData = async () => {
+    const data = await fetch(
+      "https://www.swiggy.com/dapi/restaurants/list/v5?lat=28.365185009368908&lng=79.41905222833157&is-seo-homepage-enabled=true&page_type=DESKTOP_WEB_LISTING"
+    );
 
-    return (
-      <div className="body">
-        <div className="filter">
-          <button className='filter-btn'
-          onClick={()=>{
-            resList=resList.filter((resturant)=> resturant.info.avgRating<4)
-            setResList(resList)
-          }}>
-            Top Rated Resturants
-          </button>
-        </div>
-        <div className="res-container">
-         { resList.map((resturant) => <RestaurantCard
-            key = {resturant.info.id} resData = {resturant}/>)}
-        </div>
-      </div>
+    const json = await data.json();
+    setResList(
+      json?.data?.cards[1]?.card?.card?.gridElements?.infoWithStyle?.restaurants
+    );
+
+    setFilteredList(
+      json?.data?.cards[1]?.card?.card?.gridElements?.infoWithStyle?.restaurants
     );
   };
 
-  export default Body
+  console.log(resList);
+  return resList.length === 0 ? (
+    <Shimmer />
+  ) : (
+    <div className="body">
+      <div className="filter">
+        <div className="search">
+          <input
+            type="text"
+            value={searchText}
+            onChange={(e) => {
+              setsearchText(e.target.value);
+            }}
+          />
+          <button
+            onClick={() => {
+              const filterList = resList.filter((res) =>
+                res.info.name.toLowerCase().includes(searchText.toLowerCase()));
+              setFilteredList(filterList);
+              console.log(filterList);
+            }}
+          >
+            Search
+          </button>
+        </div>
+        <button
+          className="filter-btn"
+          onClick={() => {
+            const rateList = resList.filter(
+              (resturant) => resturant.info.avgRating > 4.5
+            );
+            setFilteredList(rateList);
+          }}
+        >
+          Top Rated Resturants
+        </button>
+      </div>
+      <div className="res-container">
+        {filteredList.map((resturant) => (
+          <RestaurantCard key={resturant.info.id} resData={resturant} />
+        ))}
+      </div>
+    </div>
+  );
+};
+
+export default Body;
