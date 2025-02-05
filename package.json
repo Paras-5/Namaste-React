@@ -4,7 +4,7 @@
   "description": "This is Namaste React",
   "scripts": {
     "start": "parcel index.html",
-    "build":"parcel build index.html",
+    "build": "parcel build index.html",
     "test": "jest"
   },
   "author": "Paras Agarwal",
@@ -15,9 +15,11 @@
   },
   "dependencies": {
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "react-router": "^7.1.5",
+    "react-router-dom": "^6.29.0"
   },
-  "browserslist":[
+  "browserslist": [
     "last 2 versions"
   ]
 }
